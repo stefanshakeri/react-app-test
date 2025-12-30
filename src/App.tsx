@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import TaskForm from "./components/TaskForm";
 import ListGroup from "./components/ListGroup";
+import { Auth } from "./components/auth";
 import { supabase } from "./supabase-client";
 
 interface Task {
@@ -67,6 +68,7 @@ function App() {
         onDeleteTask={deleteTask}
         onUpdateTask={updateTask}
       />
+      <Auth />
     </div>
   );
 }
