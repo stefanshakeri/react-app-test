@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import TaskForm from "./components/TaskForm";
-import ListGroup from "./components/ListGroup";
+import TaskManager from "./components/TaskManager";
 import { Auth } from "./components/auth";
 import { supabase } from "./supabase-client";
 
@@ -58,18 +57,29 @@ function App() {
 
   console.log(tasks);
 
-  return (
-    <div style={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}>
-      <h1>Task Manager</h1>
-      <TaskForm onTaskAdded={fetchTasks} />
+  const [session, setSession] = useState<any>(null);
 
-      <ListGroup
+  const fetchSession = async () => {
+    const currentSession = await supabase.auth.getSession();
+    console.log(currentSession);
+    setSession(currentSession.data);
+  };
+
+  useEffect(() => {
+    fetchSession();
+  }, []);
+
+  return (
+    <>
+      (session ?{" "}
+      <TaskManager
         tasks={tasks}
+        onTaskAdded={fetchTasks}
         onDeleteTask={deleteTask}
         onUpdateTask={updateTask}
-      />
-      <Auth />
-    </div>
+      />{" "}
+      : <Auth />)
+    </>
   );
 }
 
