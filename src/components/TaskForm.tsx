@@ -1,17 +1,21 @@
 import { useState } from "react";
 import { supabase } from "../supabase-client";
+import type { Session } from "@supabase/supabase-js";
 
 interface TaskFormProps {
   onTaskAdded: () => void;
+  session: Session;
 }
 
-function TaskForm({ onTaskAdded }: TaskFormProps) {
+function TaskForm({ onTaskAdded, session }: TaskFormProps) {
   const [newTask, setNewTask] = useState({ title: "", description: "" });
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
-    const { error } = await supabase.from("tasks").insert(newTask);
+    const { error } = await supabase
+      .from("tasks")
+      .insert({ ...newTask, email: session.user.email });
 
     if (error) {
       console.error("Error adding task:", error.message);

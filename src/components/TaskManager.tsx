@@ -1,5 +1,6 @@
 import TaskForm from "./TaskForm";
 import ListGroup from "./ListGroup";
+import type { Session } from "@supabase/supabase-js";
 
 interface Task {
   id: number;
@@ -12,13 +13,17 @@ interface TaskManagerProps {
   onTaskAdded: () => void;
   onDeleteTask: (id: number) => void;
   onUpdateTask: (id: number, description: string) => void;
+  session: Session;
 }
 
-function TaskManager({ tasks, onTaskAdded, onDeleteTask, onUpdateTask }: TaskManagerProps) {
+function TaskManager({ tasks, onTaskAdded, onDeleteTask, onUpdateTask, session }: TaskManagerProps) {
   return (
     <div style={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}>
       <h1>Task Manager</h1>
-      <TaskForm onTaskAdded={onTaskAdded} />
+      <TaskForm 
+      onTaskAdded={onTaskAdded} 
+      session={session}
+      />
       <ListGroup
         tasks={tasks}
         onDeleteTask={onDeleteTask}

@@ -68,9 +68,11 @@ function App() {
   useEffect(() => {
     fetchSession();
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) =>{
-      setSession(session);
-    })
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setSession(session);
+      }
+    );
 
     return () => {
       authListener?.subscription.unsubscribe();
@@ -79,19 +81,20 @@ function App() {
 
   const logout = async () => {
     await supabase.auth.signOut();
-  }
+  };
 
   return (
     <>
       {session ? (
         <>
-        <button onClick={logout}> Log Out</button>
-        <TaskManager
-          tasks={tasks}
-          onTaskAdded={fetchTasks}
-          onDeleteTask={deleteTask}
-          onUpdateTask={updateTask}
-        />
+          <button onClick={logout}> Log Out</button>
+          <TaskManager
+            tasks={tasks}
+            onTaskAdded={fetchTasks}
+            onDeleteTask={deleteTask}
+            onUpdateTask={updateTask}
+            session={session}
+          />
         </>
       ) : (
         <Auth />
