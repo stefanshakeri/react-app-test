@@ -62,23 +62,40 @@ function App() {
   const fetchSession = async () => {
     const currentSession = await supabase.auth.getSession();
     console.log(currentSession);
-    setSession(currentSession.data);
+    setSession(currentSession.data.session);
   };
 
   useEffect(() => {
     fetchSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) =>{
+      setSession(session);
+    })
+
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
   }, []);
+
+  const logout = async () => {
+    await supabase.auth.signOut();
+  }
 
   return (
     <>
-      (session ?{" "}
-      <TaskManager
-        tasks={tasks}
-        onTaskAdded={fetchTasks}
-        onDeleteTask={deleteTask}
-        onUpdateTask={updateTask}
-      />{" "}
-      : <Auth />)
+      {session ? (
+        <>
+        <button onClick={logout}> Log Out</button>
+        <TaskManager
+          tasks={tasks}
+          onTaskAdded={fetchTasks}
+          onDeleteTask={deleteTask}
+          onUpdateTask={updateTask}
+        />
+        </>
+      ) : (
+        <Auth />
+      )}
     </>
   );
 }
