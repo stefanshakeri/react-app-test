@@ -40,7 +40,7 @@ function ListGroup({ tasks, onDeleteTask, onUpdateTask }: TaskListProps) {
                 <div>
                   <textarea
                     placeholder="Updated description..."
-                    value={editDescriptions[task.id] ?? task.description}
+                    value={editDescriptions[task.id] ?? ""}
                     onChange={(e) =>
                       setEditDescriptions((prev) => ({
                         ...prev,

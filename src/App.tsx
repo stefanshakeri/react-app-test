@@ -55,6 +55,26 @@ function App() {
     fetchTasks();
   }, []);
 
+  useEffect(() => {
+    const channel = supabase.channel("tasks-channel");
+    channel
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "tasks" },
+        (payload) => {
+          const newTask = payload.new as Task;
+          setTasks((prevTasks) => [newTask, ...prevTasks]);
+        }
+      )
+      .subscribe((status) => {
+        console.log("Subscription status:", status);
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   console.log(tasks);
 
   const [session, setSession] = useState<any>(null);
