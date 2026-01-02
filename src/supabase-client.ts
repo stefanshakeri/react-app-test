@@ -5,5 +5,12 @@ const supabaseApiKey = import.meta.env.VITE_SUPABASE_API_KEY as string;
 
 export const supabase = createClient(
     supabaseUrl,
-    supabaseApiKey
+    supabaseApiKey,
+    {
+        realtime: {
+            params: {
+                eventsPerSecond: 10
+            }
+        }
+    }
 );

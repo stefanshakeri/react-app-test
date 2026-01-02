@@ -62,12 +62,43 @@ function App() {
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "tasks" },
         (payload) => {
+          console.log("INSERT event received:", payload);
           const newTask = payload.new as Task;
           setTasks((prevTasks) => [newTask, ...prevTasks]);
         }
       )
-      .subscribe((status) => {
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "tasks" },
+        (payload) => {
+          console.log("UPDATE event received:", payload);
+          const updatedTask = payload.new as Task;
+          setTasks((prevTasks) =>
+            prevTasks.map((task) =>
+              task.id === updatedTask.id ? updatedTask : task
+            )
+          );
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "tasks" },
+        (payload) => {
+          console.log("DELETE event received:", payload);
+          const deletedTask = payload.old as Task;
+          setTasks((prevTasks) =>
+            prevTasks.filter((task) => task.id !== deletedTask.id)
+          );
+        }
+      )
+      .subscribe((status, err) => {
         console.log("Subscription status:", status);
+        if (err) {
+          console.error("Subscription error:", err);
+        }
+        if (status === "SUBSCRIBED") {
+          console.log("Successfully subscribed to tasks channel!");
+        }
       });
 
     return () => {
