@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { ChangeEvent } from "react";
 import { supabase } from "../supabase-client";
 import type { Session } from "@supabase/supabase-js";
 
@@ -9,13 +10,36 @@ interface TaskFormProps {
 
 function TaskForm({ onTaskAdded, session }: TaskFormProps) {
   const [newTask, setNewTask] = useState({ title: "", description: "" });
+  const [taskImage, setTaskImage] = useState<File | null>(null);
+
+  const uploadImage = async (file: File): Promise<string | null> => {
+    const filePath = `${file.name}-${Date.now()}`;
+    const { error } = await supabase.storage
+      .from("tasks-images")
+      .upload(filePath, file);
+
+    if (error) {
+      console.error("Erorr uploading image:", error.message);
+      return null;
+    }
+
+    const { data } = await supabase.storage
+      .from("tasks-images")
+      .getPublicUrl(filePath);
+    return data.publicUrl;
+  };
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
+    let imageUrl: string | null = null;
+    if (taskImage) {
+      imageUrl = await uploadImage(taskImage);
+    }
+
     const { error } = await supabase
       .from("tasks")
-      .insert({ ...newTask, email: session.user.email });
+      .insert({ ...newTask, email: session.user.email, image_url: imageUrl });
 
     if (error) {
       console.error("Error adding task:", error.message);
@@ -23,6 +47,12 @@ function TaskForm({ onTaskAdded, session }: TaskFormProps) {
       setNewTask({ title: "", description: "" });
       // Refetch tasks after successful addition
       onTaskAdded();
+    }
+  };
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setTaskImage(e.target.files[0]);
     }
   };
 
@@ -54,6 +84,8 @@ function TaskForm({ onTaskAdded, session }: TaskFormProps) {
           }}
         />
       </div>
+
+      <input type="file" accept="image/*" onChange={handleFileChange} />
 
       <button
         type="submit"

@@ -4,6 +4,7 @@ interface Task {
   id: number;
   title: string;
   description: string;
+  image_url: string;
 }
 
 interface TaskListProps {
@@ -37,6 +38,11 @@ function ListGroup({ tasks, onDeleteTask, onUpdateTask }: TaskListProps) {
               <div>
                 <h3 style={{ margin: "0 0 10px 0" }}>{task.title}</h3>
                 <p style={{ margin: 0, color: "#666" }}>{task.description}</p>
+                <img
+                  src={task.image_url}
+                  alt={`${task.title} - ${task.description}`}
+                  style={{ maxWidth: "200px", marginTop: "10px" }}
+                />
                 <div>
                   <textarea
                     placeholder="Updated description..."
